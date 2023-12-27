@@ -31,3 +31,14 @@
 
 ---
 
+<br/>
+
+## 断点分析
+
+首先，在消费者的 Controller 方法上打断点，可以看到方法执行跳转到了
+
+* org.apache.dubbo.rpc.proxy.InvokerInvocationHandler
+
+重点分析。
+
+...
