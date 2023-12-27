@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: dubbo-provider
+
+dubbo:
+  application:
+      name: ${spring.application.name}
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+      address: nacos://localhost:8848
