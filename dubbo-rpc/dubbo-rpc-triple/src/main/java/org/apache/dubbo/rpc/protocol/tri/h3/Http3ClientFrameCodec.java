@@ -16,6 +16,10 @@
  */
 package org.apache.dubbo.rpc.protocol.tri.h3;
 
+import com.alibaba.fastjson2.JSON;
+
+import io.netty.handler.codec.http3.Http3Headers;
+
 import org.apache.dubbo.common.logger.FluentLogger;
 import org.apache.dubbo.remoting.http12.HttpConstants;
 import org.apache.dubbo.remoting.http12.HttpMethods;
@@ -49,7 +53,6 @@ import io.netty.handler.codec.http3.Http3DataFrame;
 import io.netty.handler.codec.http3.Http3ErrorCode;
 import io.netty.handler.codec.http3.Http3Exception;
 import io.netty.handler.codec.http3.Http3GoAwayFrame;
-import io.netty.handler.codec.http3.Http3Headers;
 import io.netty.handler.codec.http3.Http3HeadersFrame;
 import io.netty.handler.codec.http3.Http3RequestStreamInitializer;
 import io.netty.handler.codec.quic.QuicChannel;
@@ -63,6 +66,10 @@ public class Http3ClientFrameCodec extends ChannelDuplexHandler {
     private static final FluentLogger LOGGER = FluentLogger.of(Http3ClientFrameCodec.class);
     public static final Http3ClientFrameCodec INSTANCE = new Http3ClientFrameCodec();
 
+    private io.netty.incubator.codec.http3.Http3Headers headersConverter(String jsonStr) {
+        return JSON.parseObject(jsonStr, io.netty.incubator.codec.http3.Http3Headers.class);
+    }
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Http3HeadersFrame) {
@@ -71,7 +78,7 @@ public class Http3ClientFrameCodec extends ChannelDuplexHandler {
                 pingAck(ctx);
             } else {
                 boolean endStream = headers.contains(TripleHeaderEnum.STATUS_KEY.getKey());
-                ctx.fireChannelRead(new DefaultHttp2HeadersFrame(new Http2HeadersAdapter(headers), endStream));
+                ctx.fireChannelRead(new DefaultHttp2HeadersFrame(new Http2HeadersAdapter(headersConverter(JSON.toJSONString(headers))), endStream));
             }
         } else if (msg instanceof Http3DataFrame) {
             ctx.fireChannelRead(new DefaultHttp2DataFrame(((Http3DataFrame) msg).content()));
@@ -102,8 +109,9 @@ public class Http3ClientFrameCodec extends ChannelDuplexHandler {
         if (msg instanceof Http2HeadersFrame) {
             Http2HeadersFrame frame = (Http2HeadersFrame) msg;
             if (frame.isEndStream()) {
+                Http3Headers h3h = JSON.parseObject(JSON.toJSONString(frame.headers()), Http3Headers.class);
                 ChannelFuture future = ctx.write(
-                        new DefaultHttp3HeadersFrame(new Http3HeadersAdapter(frame.headers())), ctx.newPromise());
+                        new DefaultHttp3HeadersFrame(h3h), ctx.newPromise());
                 if (future.isDone()) {
                     ((QuicStreamChannel) ctx.channel()).shutdownOutput(promise);
                 } else {

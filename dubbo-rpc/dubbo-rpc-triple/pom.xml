@@ -129,6 +129,12 @@
       <version>${project.parent.version}</version>
       <optional>true</optional>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/io.netty.incubator/netty-incubator-codec-http3 -->
+    <dependency>
+      <groupId>io.netty.incubator</groupId>
+      <artifactId>netty-incubator-codec-http3</artifactId>
+      <version>0.0.30.Final</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
