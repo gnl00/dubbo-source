@@ -47,6 +47,7 @@ import static java.util.Optional.ofNullable;
 import static org.apache.dubbo.config.AbstractConfig.getTagName;
 
 /**
+ * 全局共享的 ConfigManager 来存储全局配置信息 through ConcurrentHashMap
  * A lock-free config manager (through ConcurrentHashMap), for fast read operation.
  * The Write operation lock with sub configs map of config type, for safely check and add new config.
  */

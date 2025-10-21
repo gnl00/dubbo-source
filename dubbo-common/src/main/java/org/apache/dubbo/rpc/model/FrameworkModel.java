@@ -73,7 +73,7 @@ public class FrameworkModel extends ScopeModel {
     private final ReentrantLock destroyLock = new ReentrantLock();
 
     /**
-     * Use {@link FrameworkModel#newModel()} to create a new model
+     * Create a new model
      */
     public FrameworkModel() {
         super(null, ExtensionScope.FRAMEWORK, false);

@@ -106,7 +106,7 @@ public class HashedWheelTimer implements Timer {
     private static final int WORKER_STATE_SHUTDOWN = 2;
 
     /**
-     * 0 - init, 1 - started, 2 - shut down
+     * 0 - init, 1 - started, 2 - shutdown
      */
     @SuppressWarnings({"unused", "FieldMayBeFinal"})
     private volatile int workerState;
@@ -331,9 +331,7 @@ public class HashedWheelTimer implements Timer {
         while (startTime == 0) {
             try {
                 startTimeInitialized.await();
-            } catch (InterruptedException ignore) {
-                // Ignore - it will be ready very soon.
-            }
+            } catch (InterruptedException ignore) {}
         }
     }
 

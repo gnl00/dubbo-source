@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 统一扩展访问器
  * Uniform accessor for extension
  */
 public interface ExtensionAccessor {

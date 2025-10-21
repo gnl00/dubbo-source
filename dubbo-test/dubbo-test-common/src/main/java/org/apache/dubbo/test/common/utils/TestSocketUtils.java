@@ -58,8 +58,7 @@ public class TestSocketUtils {
 
     private static final TestSocketUtils INSTANCE = new TestSocketUtils();
 
-    private TestSocketUtils() {
-    }
+    private TestSocketUtils() {}
 
     /**
      * Find an available TCP port randomly selected from the range [1024, 65535].
@@ -95,12 +94,10 @@ public class TestSocketUtils {
      */
     boolean isPortAvailable(int port) {
         try {
-            ServerSocket serverSocket = ServerSocketFactory.getDefault()
-                .createServerSocket(port, 1, InetAddress.getByName("localhost"));
+            ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(port, 1, InetAddress.getByName("localhost"));
             serverSocket.close();
             return true;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return false;
         }
     }

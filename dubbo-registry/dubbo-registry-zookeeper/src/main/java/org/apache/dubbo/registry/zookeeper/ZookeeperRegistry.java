@@ -56,6 +56,9 @@ import static org.apache.dubbo.common.constants.RegistryConstants.DYNAMIC_KEY;
 import static org.apache.dubbo.common.constants.RegistryConstants.PROVIDERS_CATEGORY;
 import static org.apache.dubbo.common.constants.RegistryConstants.ROUTERS_CATEGORY;
 
+/**
+ * ZookeeperRegistry
+ */
 public class ZookeeperRegistry extends CacheableFailbackRegistry {
 
     private static final ErrorTypeAwareLogger logger = LoggerFactory.getErrorTypeAwareLogger(ZookeeperRegistry.class);
@@ -187,13 +190,17 @@ public class ZookeeperRegistry extends CacheableFailbackRegistry {
         }
     }
 
+    /**
+     * <p>Provider 可能需要 subscribe 路由规则/权重配置/动态配置
+     * <p>Consumer 可能需要 subscribe provider/路由规则/权重配置/动态配置
+     */
     @Override
     public void doSubscribe(final URL url, final NotifyListener listener) {
         try {
             checkDestroyed();
-            if (ANY_VALUE.equals(url.getServiceInterface())) {
+            if ("*".equals(url.getServiceInterface())) {
                 String root = toRootPath();
-                boolean check = url.getParameter(CHECK_KEY, false);
+                boolean check = url.getParameter("check", false);
                 ConcurrentMap<NotifyListener, ChildListener> listeners =
                         ConcurrentHashMapUtils.computeIfAbsent(zkListeners, url, k -> new ConcurrentHashMap<>());
 
@@ -203,7 +210,7 @@ public class ZookeeperRegistry extends CacheableFailbackRegistry {
                                 try {
                                     child = URL.decode(child);
                                     if (!(JsonUtils.checkJson(child))) {
-                                        throw new Exception("dubbo-admin subscribe " + child + " failed, because "
+                                        throw new Exception("dubbo-admin subscribe " + child + " failed,because "
                                                 + child + "is root path in " + url);
                                     }
                                 } catch (Exception e) {

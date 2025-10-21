@@ -23,6 +23,7 @@ import org.apache.dubbo.common.utils.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -32,6 +33,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -213,6 +216,7 @@ public final class Version {
     }
 
     public static String getVersion(Class<?> cls, String defaultVersion) {
+        InputStream is;
         try {
             // find version info from MANIFEST.MF first
             Package pkg = cls.getPackage();
@@ -248,6 +252,20 @@ public final class Version {
                 version = getFromFile(file);
             }
 
+            Enumeration<URL> urls = cls.getClassLoader().getResources("META-INF/MANIFEST.MF");
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                // 创建Manifest对象并从输入流中读取
+                Manifest manifest = new Manifest(url.openStream());
+                // 获取主属性集
+                Attributes attributes = manifest.getMainAttributes();
+                String bundleName = attributes.getValue("Bundle-Name");
+                if (bundleName.contains("dubbo")) {
+                    System.out.println("bundleName ==>" + bundleName);
+                    // 从属性集中获取版本号
+                    version = attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+                }
+            }
             // return default version if no version info is found
             return StringUtils.isEmpty(version) ? defaultVersion : version;
         } catch (Throwable e) {

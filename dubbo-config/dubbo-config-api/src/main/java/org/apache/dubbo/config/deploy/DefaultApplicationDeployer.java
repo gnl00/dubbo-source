@@ -221,9 +221,9 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
             // register shutdown hook
             registerShutdownHook();
 
-            startConfigCenter();
+            startConfigCenter(); // 创建服务本地的配置中心，实际上是一个 ConfigManager？
 
-            loadApplicationConfigs();
+            loadApplicationConfigs(); // 读配置文件，往 ConfigManager 中塞配置
 
             initModuleDeployers();
 
@@ -688,7 +688,7 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
                     // currently, is starting, maybe both start by module and application
                     // if it has new modules, start them
                     if (hasPendingModule) {
-                        startModules();
+                        startModules(); // 完成服务的注册与订阅
                     }
                     // if it is starting, reuse previous startFuture
                     return startFuture;

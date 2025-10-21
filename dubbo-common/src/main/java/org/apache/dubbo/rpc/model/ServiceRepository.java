@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * ServiceRepository 来存储服务信息
+ */
 public class ServiceRepository {
 
     public static final String NAME = "repository";

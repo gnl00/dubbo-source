@@ -26,11 +26,15 @@ import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.ServiceConfig;
 import org.apache.dubbo.config.bootstrap.DubboBootstrap;
 
+import org.apache.zookeeper.server.embedded.ZooKeeperServerEmbedded;
+
+import java.nio.file.Paths;
+
 public class Application {
 
     private static final String ZOOKEEPER_URL = "zookeeper://127.0.0.1:2181";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         startWithBootstrap();
     }
 
@@ -48,7 +52,7 @@ public class Application {
                 .configCenter(configCenterConfig)
                 .registry(new RegistryConfig(ZOOKEEPER_URL))
                 .metadataReport(new MetadataReportConfig(ZOOKEEPER_URL))
-                .protocol(new ProtocolConfig(CommonConstants.DUBBO, -1))
+                .protocol(new ProtocolConfig(CommonConstants.TRIPLE, -1))
                 .service(service)
                 .start()
                 .await();
