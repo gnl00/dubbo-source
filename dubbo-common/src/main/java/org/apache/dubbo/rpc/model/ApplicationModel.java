@@ -53,15 +53,22 @@ import java.util.concurrent.locks.Lock;
 public class ApplicationModel extends ScopeModel {
     protected static final Logger LOGGER = LoggerFactory.getLogger(ApplicationModel.class);
     public static final String NAME = "ApplicationModel";
+    // 所有ModuleModel实例对象集合moduleModels
     private final List<ModuleModel> moduleModels = new CopyOnWriteArrayList<>();
+    // 发布的ModuleModel实例对象集合pubModuleModels
     private final List<ModuleModel> pubModuleModels = new CopyOnWriteArrayList<>();
     private volatile Environment environment;
-    private volatile ConfigManager configManager;
-    private volatile ServiceRepository serviceRepository;
+    // 配置管理ConfigManager实例对象configManager
+    private volatile ConfigManager configManager; // 本地配置中心？
+    // 服务存储库ServiceRepository实例对象serviceRepository
+    private volatile ServiceRepository serviceRepository; // 本地注册中心？
+    // 应用程序部署器ApplicationDeployer实例对象deployer
     private volatile ApplicationDeployer deployer;
 
+    // 所属框架FrameworkModel实例对象frameworkModel
     private final FrameworkModel frameworkModel;
 
+    // 内部的模块模型ModuleModel实例对象internalModule
     private final ModuleModel internalModule;
 
     private volatile ModuleModel defaultModule;
@@ -124,7 +131,7 @@ public class ApplicationModel extends ScopeModel {
                     this.getExtensionLoader(ScopeModelInitializer.class);
             Set<ScopeModelInitializer> initializers = initializerExtensionLoader.getSupportedExtensionInstances();
             for (ScopeModelInitializer initializer : initializers) {
-                initializer.initializeApplicationModel(this);
+                initializer.initializeApplicationModel(this); // set Deployer
             }
 
             Assert.notNull(getApplicationServiceRepository(), "ApplicationServiceRepository can not be null");

@@ -490,6 +490,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
     private T createProxy(Map<String, String> referenceParameters) {
         urls.clear();
 
+        // if enable mesh mode, handle url.
         meshModeHandleUrl(referenceParameters);
 
         if (StringUtils.isNotEmpty(url)) {

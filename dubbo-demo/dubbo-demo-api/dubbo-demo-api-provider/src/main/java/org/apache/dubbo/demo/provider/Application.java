@@ -26,10 +26,6 @@ import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.ServiceConfig;
 import org.apache.dubbo.config.bootstrap.DubboBootstrap;
 
-import org.apache.zookeeper.server.embedded.ZooKeeperServerEmbedded;
-
-import java.nio.file.Paths;
-
 public class Application {
 
     private static final String ZOOKEEPER_URL = "zookeeper://127.0.0.1:2181";
@@ -39,9 +35,10 @@ public class Application {
     }
 
     private static void startWithBootstrap() {
-        ServiceConfig<DemoServiceImpl> service = new ServiceConfig<>();
-        service.setInterface(DemoService.class);
-        service.setRef(new DemoServiceImpl());
+        ServiceConfig<DemoServiceImpl> serviceConfig = new ServiceConfig<>();
+        serviceConfig.setInterface(DemoService.class);
+        serviceConfig.setRef(new DemoServiceImpl());
+        serviceConfig.setTimeout(20 * 1000);
 
         ConfigCenterConfig configCenterConfig = new ConfigCenterConfig();
         configCenterConfig.setAddress(ZOOKEEPER_URL);
@@ -53,7 +50,7 @@ public class Application {
                 .registry(new RegistryConfig(ZOOKEEPER_URL))
                 .metadataReport(new MetadataReportConfig(ZOOKEEPER_URL))
                 .protocol(new ProtocolConfig(CommonConstants.TRIPLE, -1))
-                .service(service)
+                .service(serviceConfig)
                 .start()
                 .await();
     }

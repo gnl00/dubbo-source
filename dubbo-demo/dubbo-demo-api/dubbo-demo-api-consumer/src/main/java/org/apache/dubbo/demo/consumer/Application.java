@@ -18,13 +18,12 @@ package org.apache.dubbo.demo.consumer;
 
 import org.apache.dubbo.api.demo.DemoService;
 import org.apache.dubbo.common.constants.CommonConstants;
+import org.apache.dubbo.common.stream.StreamObserver;
 import org.apache.dubbo.config.ApplicationConfig;
-import org.apache.dubbo.config.ConsumerConfig;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.bootstrap.DubboBootstrap;
-import org.apache.dubbo.rpc.service.GenericService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,7 @@ public class Application {
 
     public static void main(String[] args) {
         runWithBootstrap();
-        execRemoteGenericCall();
+        System.out.println("### ==> Enter anything to process remote invoke <== ###");
         while (true) {
             Scanner sc = new Scanner(System.in);
             String s = sc.nextLine();
@@ -57,21 +56,78 @@ public class Application {
     private static void runWithBootstrap() {
         reference.setInterface(DemoService.class);
         // reference.setGeneric("true");
-        ConsumerConfig consumerConfig = new ConsumerConfig();
-        consumerConfig.setCheck(false);
+        reference.setCheck(false);
+        reference.setTimeout(20 * 1000);
         bootstrap.application(new ApplicationConfig("dubbo-demo-api-consumer"))
                 .registry(new RegistryConfig(REGISTRY_URL))
                 .protocol(new ProtocolConfig(CommonConstants.TRIPLE, -1))
                 .reference(reference)
-                .consumer(consumerConfig)
                 .start();
     }
 
     private static void execRemoteGenericCall() {
         DemoService demoService = bootstrap.getCache().get(reference);
         // normal invoke
-        String message = demoService.sayHello("dubbo");
-        logger.info(message);
+        /*
+        String invokeResult = demoService.sayHello("dubbo");
+        logger.info(invokeResult);
+        */
+
+        // server-stream response based on Triple Protocol
+        demoService.serverStream(new StreamObserver<String>() {
+            @Override
+            public void onNext(String data) {
+                System.out.println("server-stream data ==> " + data);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("server-stream done");
+            }
+        });
+
+        // client-stream based on Triple Protocol
+        // NOTE 从 org.apache.dubbo.rpc.protocol.tri.TripleInvoker.doInvoke 源码中可以看到 CLIENT_STREAM 并未实现
+        // 同时启动的时候报错 java.lang.IllegalStateException: Bad stream method signature. method(clientStream:) 可以猜测当前 3.3.6 版本未实现 client side stream
+        /*
+        new Thread(() -> {
+            System.out.println("client-stream start~");
+            StreamObserver<String> request = demoService.clientStream();
+            for (int i = 100; i < 110; i++) {
+                request.onNext("client-stream request" + i);
+            }
+            request.onCompleted();
+        }).start();
+        */
+
+        // bi-stream based on Triple Protocol
+        /*
+        StreamObserver<String> request = demoService.biStream(new StreamObserver<String>() {
+            @Override
+            public void onNext(String data) {
+                System.out.println("bi-stream data ==> " + data);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                System.out.println("bi-stream error" + throwable.getCause());
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("bi-stream done");
+            }
+        });
+        for (int i = 0; i < 10; i++) {
+            request.onNext("stream request " + i);
+        }
+        request.onCompleted();
+        */
 
         // generic invoke
         /*GenericService genericService = (GenericService) demoService;

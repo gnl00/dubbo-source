@@ -221,7 +221,7 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
             // register shutdown hook
             registerShutdownHook();
 
-            startConfigCenter(); // 创建服务本地的配置中心，实际上是一个 ConfigManager？
+            startConfigCenter(); // 创建服务本地的配置中心，实际上是一个全局共享的 ConfigManager 来存储全局配置信息
 
             loadApplicationConfigs(); // 读配置文件，往 ConfigManager 中塞配置
 
@@ -232,10 +232,10 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
             initMetricsService();
 
             // @since 3.2.3
-            initObservationRegistry();
+            initObservationRegistry(); // Metrics Observation
 
             // @since 2.7.8
-            startMetadataCenter();
+            startMetadataCenter(); // 启动元数据中心
 
             initialized = true;
 
@@ -331,7 +331,6 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
         List<MetadataReportConfig> validMetadataReportConfigs = new ArrayList<>(metadataReportConfigs.size());
         for (MetadataReportConfig metadataReportConfig : metadataReportConfigs) {
             if (ConfigValidationUtils.isValidMetadataConfig(metadataReportConfig)) {
-                ConfigValidationUtils.validateMetadataConfig(metadataReportConfig);
                 validMetadataReportConfigs.add(metadataReportConfig);
             }
         }
@@ -688,7 +687,7 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
                     // currently, is starting, maybe both start by module and application
                     // if it has new modules, start them
                     if (hasPendingModule) {
-                        startModules(); // 完成服务的注册与订阅
+                        startModules();
                     }
                     // if it is starting, reuse previous startFuture
                     return startFuture;
@@ -705,7 +704,7 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
 
                 initialize();
 
-                doStart();
+                startModules(); // == doStart()
             } catch (Throwable e) {
                 onFailed(getIdentifier() + " start failure", e);
                 throw e;
@@ -733,35 +732,9 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
 
     private void doStart() {
         startModules();
-
-        // prepare application instance
-        //        prepareApplicationInstance();
-
-        // Ignore checking new module after start
-        //        executorRepository.getSharedExecutor().submit(() -> {
-        //            try {
-        //                while (isStarting()) {
-        //                    // notify when any module state changed
-        //                    synchronized (stateLock) {
-        //                        try {
-        //                            stateLock.wait(500);
-        //                        } catch (InterruptedException e) {
-        //                            // ignore
-        //                        }
-        //                    }
-        //
-        //                    // if has new module, do start again
-        //                    if (hasPendingModule()) {
-        //                        startModules();
-        //                    }
-        //                }
-        //            } catch (Throwable e) {
-        //                onFailed(getIdentifier() + " check start occurred an exception", e);
-        //            }
-        //        });
     }
 
-    private void startModules() {
+    private void startModules() { // 完成服务的注册与订阅
         // ensure init and start internal module first
         prepareInternalModule();
 

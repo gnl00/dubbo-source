@@ -759,13 +759,6 @@ public final class DubboBootstrap {
         return new Module(applicationModel.newModule());
     }
 
-    public Module newModule(ModuleConfig moduleConfig) {
-        ModuleModel moduleModel = applicationModel.newModule();
-        moduleConfig.setScopeModel(moduleModel);
-        moduleModel.getConfigManager().setModule(moduleConfig);
-        return new Module(moduleModel);
-    }
-
     public DubboBootstrap endModule() {
         return this;
     }

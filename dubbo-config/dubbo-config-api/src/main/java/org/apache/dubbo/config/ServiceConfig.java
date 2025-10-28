@@ -549,7 +549,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         checkAndUpdateSubConfigs();
     }
 
-    protected synchronized void doExport(RegisterTypeEnum registerType) {
+    protected synchronized void doExport(RegisterTypeEnum registerType) { // AUTO_REGISTER_BY_DEPLOYER
         if (unexported) {
             throw new IllegalStateException("The service " + interfaceClass.getName() + " has already unexported!");
         }
@@ -558,7 +558,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         }
 
         if (StringUtils.isEmpty(path)) {
-            path = interfaceName;
+            path = interfaceName; // org.apache.dubbo.api.demo.DemoService
         }
         doExportUrls(registerType);
         exported();

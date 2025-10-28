@@ -16,9 +16,13 @@
  */
 package org.apache.dubbo.api.demo;
 
+import org.apache.dubbo.common.stream.StreamObserver;
+
 import java.util.concurrent.CompletableFuture;
 
 public interface DemoService {
+
+    int echo(int i);
 
     String sayHello(String name);
 
@@ -37,4 +41,11 @@ public interface DemoService {
     default CompletableFuture<String> sayHelloAsync(String name) {
         return CompletableFuture.completedFuture(sayHello(name));
     }
+
+    void serverStream(StreamObserver<String> response);
+
+    // StreamObserver<String> clientStream();
+
+    StreamObserver<String> biStream(StreamObserver<String> response);
+
 }

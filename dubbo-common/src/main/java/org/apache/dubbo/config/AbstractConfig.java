@@ -730,7 +730,6 @@ public abstract class AbstractConfig implements Serializable {
                         e);
                 throw new IllegalStateException("Failed to override field value of config bean: " + this, e);
             }
-
             postProcessRefresh();
         }
         refreshed.set(true);

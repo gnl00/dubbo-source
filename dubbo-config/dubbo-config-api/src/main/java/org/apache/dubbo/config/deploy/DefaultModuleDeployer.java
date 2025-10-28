@@ -155,7 +155,6 @@ public class DefaultModuleDeployer extends AbstractDeployer<ModuleModel> impleme
     public Future start() throws IllegalStateException {
         // initialize，maybe deadlock applicationDeployer lock & moduleDeployer lock
         applicationDeployer.initialize();
-
         return startSync();
     }
 
@@ -173,7 +172,7 @@ public class DefaultModuleDeployer extends AbstractDeployer<ModuleModel> impleme
 
             initialize();
 
-            // export services
+            // export services Provider 将远程调用服务导出，供后续注册
             exportServices();
 
             // prepare application instance
@@ -182,7 +181,7 @@ public class DefaultModuleDeployer extends AbstractDeployer<ModuleModel> impleme
                 applicationDeployer.prepareInternalModule();
             }
 
-            // refer services
+            // refer services Consumer 从注册中心订阅服务引用
             referServices();
 
             // if no async export/refer services, just set started
@@ -191,7 +190,7 @@ public class DefaultModuleDeployer extends AbstractDeployer<ModuleModel> impleme
                 onModuleStarted();
 
                 // register services to registry
-                registerServices();
+                registerServices(); // 将导出的服务注册到注册中心上
 
                 // check reference config
                 checkReferences();
@@ -214,7 +213,7 @@ public class DefaultModuleDeployer extends AbstractDeployer<ModuleModel> impleme
                         onModuleStarted();
 
                         // register services to registry
-                        registerServices();
+                        registerServices(); // 将导出的服务注册到注册中心上
 
                         // check reference config
                         checkReferences();
