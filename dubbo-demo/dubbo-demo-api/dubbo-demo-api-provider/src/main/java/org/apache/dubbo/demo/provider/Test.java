@@ -1,6 +1,7 @@
 package org.apache.dubbo.demo.provider;
 
 import org.apache.dubbo.api.demo.DemoService;
+import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.constants.RegisterTypeEnum;
 import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ArgumentConfig;
@@ -9,6 +10,7 @@ import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.ProviderConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.ServiceConfig;
+import org.apache.dubbo.config.bootstrap.DubboBootstrap;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.model.ApplicationModel;
 import org.apache.dubbo.rpc.model.FrameworkModel;
@@ -19,19 +21,12 @@ import java.util.Collections;
 public class Test {
 
     public static void main(String[] args) {
-        FrameworkModel frameworkModel = FrameworkModel.defaultModel();
-        ApplicationModel applicationModel = frameworkModel.defaultApplication();
-        ModuleModel moduleModel = applicationModel.newModule();
+        startManual();
+    }
 
-        ConfigManager configManager = new ConfigManager(applicationModel);
-
-        ApplicationConfig applicationConfig = new ApplicationConfig("provider-app");
-        applicationConfig.setProtocol("dubbo");
-        applicationConfig.setName("provider-app");
-
-        // configManager.addConfig(applicationConfig);
-        // configManager.addProtocol(new ProtocolConfig("dubbo"));
-        // applicationModel.setConfigManager(configManager);
+    private static void multiInstances() {
+        ApplicationConfig applicationConfig = new ApplicationConfig("app1");
+        applicationConfig.setRegisterMode(CommonConstants.INSTANCE_REGISTER_MODE); // 应用实例级别注册
 
         ServiceConfig<DemoService> serviceConfig = new ServiceConfig<>();
         serviceConfig.setInterface(DemoService.class);
@@ -40,26 +35,34 @@ public class Test {
         RegistryConfig registryConfig = new RegistryConfig("zookeeper://127.0.0.1:2181");
         registryConfig.setProtocol("dubbo");
         serviceConfig.setRegistry(registryConfig);
-        serviceConfig.setApplication(applicationConfig);
 
-        ArgumentConfig argument = new ArgumentConfig();
-        argument.setIndex(0);
-        argument.setCallback(false);
+        DubboBootstrap.newInstance()
+                .application(applicationConfig)
+                .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
+                .protocol(new ProtocolConfig("dubbo", 20808))
+                .service(serviceConfig)
+                .start();
 
-        MethodConfig method = new MethodConfig();
-        method.setName("echo");
-        method.setArguments(Collections.singletonList(argument));
+        ApplicationConfig applicationConfig2 = new ApplicationConfig("app2");
+        applicationConfig2.setRegisterMode(CommonConstants.INSTANCE_REGISTER_MODE); // 应用实例级别注册
+        DubboBootstrap.newInstance()
+                .application(applicationConfig2)
+                .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
+                .protocol(new ProtocolConfig("dubbo", 20808))
+                .service(serviceConfig)
+                .start();
+    }
 
-        serviceConfig.setMethods(Collections.singletonList(method));
+    public static void startManual() {
+        ServiceConfig<DemoService> serviceConfig = new ServiceConfig<>();
+        serviceConfig.setInterface(DemoService.class);
+        serviceConfig.setTimeout(20 * 1000);
+        serviceConfig.setRef(new DemoServiceImpl());
+        RegistryConfig registryConfig = new RegistryConfig("zookeeper://127.0.0.1:2181");
+        registryConfig.setProtocol("dubbo");
+        registryConfig.setRegisterMode(CommonConstants.INSTANCE_REGISTER_MODE);
+        serviceConfig.setRegistry(registryConfig);
 
-        ProviderConfig providerConfig = new ProviderConfig();
-        providerConfig.setProtocol(new ProtocolConfig("dubbo"));
-        providerConfig.setExport(true);
-
-        serviceConfig.setProvider(providerConfig);
-
-        // moduleModel.getConfigManager().addService(serviceConfig);
-
-        serviceConfig.export(RegisterTypeEnum.AUTO_REGISTER);
+        serviceConfig.export();
     }
 }

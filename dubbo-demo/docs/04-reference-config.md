@@ -1,10 +1,6 @@
 # Dubbo 源码分析：服务引用配置原理
 
-> 深入探讨 ReferenceConfig 的初始化过程及服务引用的完整流程。
->
-> **阅读前提**：
-> - ✅ 理解 Dubbo 的基本配置方式
-> - ✅ 了解注册中心的作用
+> ReferenceConfig 的初始化过程及服务引用的流程。
 
 ---
 
@@ -86,7 +82,6 @@ DemoService demoService = bootstrap.getCache().get(reference);
 ```java
 // 方式一：显式调用 get()
 DemoService service = reference.get();  // 内部调用 init()
-
 // 方式二：通过缓存获取
 DemoService service = bootstrap.getCache().get(reference);  // 首次获取时调用 init()
 ```
@@ -96,15 +91,13 @@ DemoService service = bootstrap.getCache().get(reference);  // 首次获取时�
 `org.apache.dubbo.config.ReferenceConfig.get`
 
 ```java
-public synchronized T get() {
-    if (destroyed) {
-        throw new IllegalStateException("The invoker of ReferenceConfig has been destroyed!");
-    }
-    // 首次调用时才初始化
+public T get(boolean check) {
+    // ...
     if (ref == null) {
-        init(false);  // 懒加载初始化
+        // ...
+        init(check);
     }
-    return ref;  // 返回代理对象
+    return ref;
 }
 ```
 
@@ -486,20 +479,9 @@ Proxy.buildProxyClass()  ← Javassist 生成字节码
 
 ---
 
-## 延伸阅读
-
-### 系列文档
-
-- **上一篇**：[01-dynamic-proxy.md](./01-dynamic-proxy.md) - 动态代理机制
-- **下一篇**：[03-cluster-invoke.md](./03-cluster-invoke.md) - 集群容错与负载均衡
-- **第四篇**：[04-protocol-analysis.md](./04-protocol-analysis.md) - Triple 协议深度解析
-
-### 官方文档
+## 参考文档
 
 - [Dubbo 服务引用](https://dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/config/api/)
 - [Dubbo 注册中心](https://dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/registry/)
 - [Dubbo Invoker 设计](https://dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/architecture/)
 
----
-
-**🔙 [返回文档目录](./README.md)** | **⬅️ [上一篇：动态代理机制](./01-dynamic-proxy.md)** | **➡️ [下一篇：集群容错与负载均衡](./03-cluster-invoke.md)**
