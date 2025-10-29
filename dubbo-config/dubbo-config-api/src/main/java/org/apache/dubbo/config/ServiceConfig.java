@@ -608,10 +608,10 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         repository.registerProvider(providerModel);
 
         List<URL> registryURLs = !Boolean.FALSE.equals(isRegister())
-                ? ConfigValidationUtils.loadRegistries(this, true)
+                ? ConfigValidationUtils.loadRegistries(this, true) // 加载注册中心链接
                 : Collections.emptyList();
 
-        for (ProtocolConfig protocolConfig : protocols) {
+        for (ProtocolConfig protocolConfig : protocols) { // 再遍历 ProtocolConfig 集合导出每个服务
             String pathKey = URL.buildKey(
                     getContextPath(protocolConfig).map(p -> p + "/" + path).orElse(path), group, version);
             // stub service will use generated service name

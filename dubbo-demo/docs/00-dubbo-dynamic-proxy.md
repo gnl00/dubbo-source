@@ -333,7 +333,7 @@ private static Class<?> buildProxyClass(ClassLoader cl, Class<?>[] ics, Protecti
 
 ### 生成的代理类结构
 
-虽然我们看不到源代码（因为是动态生成的），但可以推断出生成的代理类结构如下：
+最终生成的代理类结构大概如下：
 
 ```java
 public class DemoServiceDubboProxy0 implements DemoService {
@@ -374,7 +374,13 @@ public class DemoServiceDubboProxy0 implements DemoService {
 }
 ```
 
+---
+
+代理类的模板代码是在 `org.apache.dubbo.common.bytecode.Wrapper.makeWrapper` 方法中组装的。
+
 > 如果想看生成的代码到底是什么，可以借助 [arthas](https://github.com/alibaba/arthas) 工具，将 `DemoServiceDubboProxy0` 类内容 dump 下来，然后使用 `jad` 命令查看字节码（或者直接拖到 Idea 中查看）
+
+---
 
 **关键点：**
 
