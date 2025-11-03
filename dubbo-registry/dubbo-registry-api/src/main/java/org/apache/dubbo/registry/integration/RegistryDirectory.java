@@ -274,6 +274,7 @@ public class RegistryDirectory<T> extends DynamicDirectory<T> {
     private void refreshInvoker(List<URL> invokerUrls) {
         Assert.notNull(invokerUrls, "invokerUrls should not be null");
 
+        // invokerUrls 仅有一个元素，且 url 协议头为 empty，此时表示禁用所有服务
         if (invokerUrls.size() == 1
                 && invokerUrls.get(0) != null
                 && EMPTY_PROTOCOL.equals(invokerUrls.get(0).getProtocol())) {
