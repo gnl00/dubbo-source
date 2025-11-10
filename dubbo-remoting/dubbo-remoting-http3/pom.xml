@@ -56,7 +56,7 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-codec-native-quic</artifactId>
-      <version>4.2.2.Final</version>
+      <version>4.2.7.Final</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/io.netty.incubator/netty-incubator-codec-http3 -->
